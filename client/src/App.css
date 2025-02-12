@@ -1,0 +1,5 @@
+/* Remove all existing content and add: */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+}
