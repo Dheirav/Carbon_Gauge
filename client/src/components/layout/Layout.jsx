@@ -5,7 +5,7 @@ import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { useAuth } from '../../context/AuthContext';
 
-const Layout = () => {
+const Layout = ({ toggleTheme, mode }) => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const { user } = useAuth();
   const isDesktop = useMediaQuery('(min-width:600px)');
@@ -25,7 +25,12 @@ const Layout = () => {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <Navbar onMenuClick={handleDrawerToggle} mobileOpen={mobileOpen} />
+      <Navbar
+        onMenuClick={handleDrawerToggle}
+        mobileOpen={mobileOpen}
+        toggleTheme={toggleTheme}
+        mode={mode}
+      />
       <Sidebar 
         mobileOpen={mobileOpen} 
         onClose={handleCloseSidebar}

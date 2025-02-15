@@ -22,8 +22,8 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   },
   "scripts": {
-    "start": "node start.js",
-    "start-no-auth": "node start-no-auth.js",
+    "start": "react-scripts start",
+    "start-no-auth": "REACT_APP_BYPASS_AUTH=true react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
