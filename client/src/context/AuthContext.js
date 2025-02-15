@@ -5,11 +5,17 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const initAuth = async () => {
+      // If bypass mode is enabled, skip API validation and use dummy user
+      if (process.env.REACT_APP_BYPASS_AUTH === "true") {
+        setLoading(false);
+        return;
+      }
+
       if (token) {
         try {
           const response = await axios.get('/api/auth/profile', {
@@ -26,6 +32,18 @@ export const AuthProvider = ({ children }) => {
 
     initAuth();
   }, [token]);
+
+  useEffect(() => {
+    if (process.env.REACT_APP_BYPASS_AUTH === "true") {
+      const dummyUser = {
+        name: "Guest User",
+        email: "guest@example.com",
+        role: process.env.REACT_APP_USER_ROLE || "regular",
+      };
+      setUser(dummyUser);
+      setToken("dummy-token");
+    }
+  }, []);
 
   const login = async (email, password) => {
     try {

@@ -10,7 +10,6 @@ import {
   useMediaQuery,
   Typography,
   Divider,
-  ListItemButton,
   Avatar,
   ListSubheader,
   Tooltip,
@@ -23,7 +22,6 @@ import {
   Settings as SettingsIcon,
   Help as HelpIcon,
   BarChart as AnalyticsIcon,
-  Factory as FactoryIcon,
   EmojiObjects as SuggestionsIcon,
   CloudDownload as ExportIcon,
   Close as CloseIcon
@@ -46,7 +44,6 @@ const menuItems = [
     group: 'Analysis',
     items: [
       { text: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics' },
-      { text: 'Factory Overview', icon: <FactoryIcon />, path: '/factory', industrial: true },
       { text: 'Export Data', icon: <ExportIcon />, path: '/export' }
     ]
   },
@@ -128,39 +125,36 @@ const Sidebar = ({ mobileOpen, onClose }) => {
                   placement="right"
                   arrow
                 >
-                  <ListItem disablePadding>
-                    <ListItemButton
-                      selected={location.pathname === item.path}
-                      onClick={() => handleNavigation(item.path)}
-                      sx={{
-                        minHeight: 48,
-                        px: 2.5,
-                        '&.Mui-selected': {
-                          bgcolor: 'primary.light',
-                          '&:hover': {
-                            bgcolor: 'primary.light',
-                          },
+                  <ListItem
+                    button
+                    selected={location.pathname === item.path}
+                    onClick={() => handleNavigation(item.path)}
+                    sx={{
+                      '&.Mui-selected, &.Mui-selected:hover': {
+                        backgroundColor: theme.palette.primary.main,
+                        '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+                          color: theme.palette.primary.contrastText,
                         },
+                      },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: 2,
+                        justifyContent: 'center',
+                        color: location.pathname === item.path ? 'primary.main' : 'inherit',
                       }}
                     >
-                      <ListItemIcon
-                        sx={{
-                          minWidth: 0,
-                          mr: 2,
-                          justifyContent: 'center',
-                          color: location.pathname === item.path ? 'primary.main' : 'inherit',
-                        }}
-                      >
-                        {item.icon}
-                      </ListItemIcon>
-                      <ListItemText 
-                        primary={item.text}
-                        primaryTypographyProps={{
-                          variant: 'body2',
-                          color: location.pathname === item.path ? 'primary.main' : 'inherit',
-                        }}
-                      />
-                    </ListItemButton>
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={item.text}
+                      primaryTypographyProps={{
+                        variant: 'body2',
+                        color: location.pathname === item.path ? 'primary.main' : 'inherit',
+                      }}
+                    />
                   </ListItem>
                 </Tooltip>
               );
@@ -206,6 +200,7 @@ const Sidebar = ({ mobileOpen, onClose }) => {
         variant="temporary"
         open={mobileOpen}
         onClose={onClose}
+        transitionDuration={500}
         ModalProps={{
           keepMounted: true,
         }}
@@ -214,7 +209,8 @@ const Sidebar = ({ mobileOpen, onClose }) => {
           '& .MuiDrawer-paper': { 
             width: drawerWidth,
             boxSizing: 'border-box',
-            bgcolor: 'background.paper'
+            backgroundColor: theme.palette.background.paper,
+            transition: 'transform 0.3s ease-out',
           }
         }}
       >
@@ -228,7 +224,7 @@ const Sidebar = ({ mobileOpen, onClose }) => {
           '& .MuiDrawer-paper': { 
             width: drawerWidth,
             boxSizing: 'border-box',
-            bgcolor: 'background.paper',
+            backgroundColor: theme.palette.background.paper,
             borderRight: '1px solid',
             borderColor: 'divider'
           }

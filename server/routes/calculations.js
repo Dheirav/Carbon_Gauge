@@ -104,4 +104,90 @@ router.delete('/history', auth, async (req, res) => {
     }
 });
 
+// New route for Industrial Emission Calculation
+router.post('/calculate-industrial', auth, async (req, res) => {
+    try {
+        const {
+            machineId,
+            pu,
+            pi,
+            tidle,
+            dw,
+            Lw,
+            machiningAllowance,
+            vc,
+            f,
+            ap,
+            coolantType,
+            CC,
+            AC,
+            coolantConcentration,
+            toolMaterial,
+            toolMass,
+            material
+        } = req.body;
+
+        const machine = await Machine.findById(machineId);
+        if (!machine) {
+            return res.status(404).send({ error: 'Machine not found' });
+        }
+
+        const result = await CalculationService.calculateIndustrialTotalEmission({
+            machineId,
+            pu,
+            pi,
+            tidle,
+            dw,
+            Lw,
+            machiningAllowance,
+            vc,
+            f,
+            ap,
+            coolantType,
+            CC,
+            AC,
+            coolantConcentration,
+            toolMaterial,
+            toolMass,
+            material
+        });
+
+        // Save industrial calculation results into the Emission model (adjust parameters as desired)
+        const emission = new Emission({
+            userId: req.user._id,
+            machineId,
+            CEelec: result.CEelec,
+            CEtool: result.CEtool,
+            CEcoolant: result.CEcoolant,
+            CEm: result.CEm,
+            CEchip: result.CEchip,
+            totalEmission: result.total,
+            parameters: {
+                pu,
+                pi,
+                tidle,
+                dw,
+                Lw,
+                machiningAllowance,
+                vc,
+                f,
+                ap,
+                coolantType,
+                CC,
+                AC,
+                coolantConcentration,
+                toolMaterial,
+                toolMass,
+                workpieceMaterial: material
+            }
+        });
+
+        await emission.save();
+        res.json(result);
+    } catch (error) {
+        console.error('Industrial calculation error:', error);
+        res.status(500).send({ error: error.message });
+    }
+});
+
 module.exports = router; 

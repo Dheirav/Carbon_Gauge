@@ -16,9 +16,11 @@ import {
 } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
+import { Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
 const History = () => {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,19 +29,24 @@ const History = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await axios.get('/api/calculations/history', {
+        const endpoint = '/api/calculations/history';
+        const response = await axios.get(endpoint, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setHistory(response.data);
       } catch (err) {
-        setError('Failed to fetch history');
+        setError('Failed to fetch history: ' + (err.response?.data?.message || err.message));
       } finally {
         setLoading(false);
       }
     };
 
     fetchHistory();
-  }, [token]);
+  }, [token, user]);
+
+  useEffect(() => {
+    ChartJS.register(ArcElement, Tooltip, Legend);
+  }, []);
 
   const handleToggleRow = (id) => {
     setExpandedRow(expandedRow === id ? null : id);
@@ -103,12 +110,39 @@ const History = () => {
                     <TableCell colSpan={4} style={{ paddingBottom: 0, paddingTop: 0 }}>
                       <Collapse in={expandedRow === record._id} timeout="auto" unmountOnExit>
                         <Box margin={1}>
-                          <Typography variant="h6">Detailed Report</Typography>
-                          <Typography>Electrical Emission: {record.CEele.toFixed(2)} kg CO₂</Typography>
-                          <Typography>Tool Emission: {record.CEtool.toFixed(2)} kg CO₂</Typography>
-                          <Typography>Coolant Emission: {record.CEcoolant.toFixed(2)} kg CO₂</Typography>
-                          <Typography>Material Emission: {record.CEm.toFixed(2)} kg CO₂</Typography>
-                          <Typography>Chip Emission: {record.CEchip.toFixed(2)} kg CO₂</Typography>
+                          <Typography variant="h6" gutterBottom>Detailed Report</Typography>
+                          <Box sx={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'flex-start'
+                          }}>
+                              <Box sx={{ flex: 1 }}>
+                                <Typography>Electrical Emission: {record.CEele.toFixed(2)} kg CO₂</Typography>
+                                <Typography>Tool Emission: {record.CEtool.toFixed(2)} kg CO₂</Typography>
+                                <Typography>Coolant Emission: {record.CEcoolant.toFixed(2)} kg CO₂</Typography>
+                                <Typography>Material Emission: {record.CEm.toFixed(2)} kg CO₂</Typography>
+                                <Typography>Chip Emission: {record.CEchip.toFixed(2)} kg CO₂</Typography>
+                              </Box>
+                              <Box sx={{ width: 200, ml: 2 }}>
+                                <Pie 
+                                  data={{
+                                    labels: ['Electrical', 'Tool', 'Coolant', 'Material', 'Chip'],
+                                    datasets: [{
+                                      data: [
+                                        record.CEele, 
+                                        record.CEtool, 
+                                        record.CEcoolant, 
+                                        record.CEm, 
+                                        record.CEchip
+                                      ],
+                                      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#8A2BE2', '#00FF7F']
+                                    }]
+                                  }}
+                                  options={{ maintainAspectRatio: true }}
+                                />
+                              </Box>
+                          </Box>
                         </Box>
                       </Collapse>
                     </TableCell>

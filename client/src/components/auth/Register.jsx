@@ -23,8 +23,12 @@ const Register = () => {
     company: ''
   });
   const [error, setError] = useState('');
+  // New state for field-specific errors
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleChange = (e) => {
+    // Clear any error for this field as the user corrects it
+    setFieldErrors((prev) => ({ ...prev, [e.target.name]: '' }));
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -33,11 +37,36 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Additional validation for industrial account: Company field must not be empty
+    if (formData.role === 'industrial' && !formData.company.trim()) {
+      setError('Company is required for Industrial User registration');
+      return;
+    }
     try {
       await register(formData);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
+      // Clear previous field errors
+      setFieldErrors({});
+      if (err.response) {
+        if (err.response.data && err.response.data.errors) {
+          // Extract the field-specific errors
+          setFieldErrors(err.response.data.errors);
+          // Combine error messages from each field into one detailed message
+          const errorMessages = Object.entries(err.response.data.errors)
+            .map(([field, msg]) => `${field[0].toUpperCase() + field.slice(1)}: ${msg}`)
+            .join(' | ');
+          setError("Registration failed: " + errorMessages);
+        } else if (err.response.data && err.response.data.message) {
+          setError(err.response.data.message);
+        } else if (err.response.status === 400) {
+          setError("Registration failed: Please check your email, password, and if applicable, your company information.");
+        } else {
+          setError("Registration failed: " + err.response.statusText);
+        }
+      } else if (err.message) {
+        setError("Registration failed: " + err.message);
+      }
     }
   };
 
@@ -58,6 +87,8 @@ const Register = () => {
               onChange={handleChange}
               margin="normal"
               required
+              error={!!fieldErrors.name}
+              helperText={fieldErrors.name}
             />
             <TextField
               fullWidth
@@ -68,6 +99,8 @@ const Register = () => {
               onChange={handleChange}
               margin="normal"
               required
+              error={!!fieldErrors.email}
+              helperText={fieldErrors.email}
             />
             <TextField
               fullWidth
@@ -78,6 +111,8 @@ const Register = () => {
               onChange={handleChange}
               margin="normal"
               required
+              error={!!fieldErrors.password}
+              helperText={fieldErrors.password}
             />
             <TextField
               select
@@ -88,6 +123,8 @@ const Register = () => {
               onChange={handleChange}
               margin="normal"
               required
+              error={!!fieldErrors.role}
+              helperText={fieldErrors.role}
             >
               <MenuItem value="regular">Regular User</MenuItem>
               <MenuItem value="industrial">Industrial User</MenuItem>
@@ -99,6 +136,13 @@ const Register = () => {
               value={formData.company}
               onChange={handleChange}
               margin="normal"
+              required={formData.role === 'industrial'}
+              error={!!fieldErrors.company}
+              helperText={
+                formData.role === 'industrial'
+                  ? (fieldErrors.company || 'Company is required for Industrial User.')
+                  : fieldErrors.company
+              }
             />
             <Button
               type="submit"

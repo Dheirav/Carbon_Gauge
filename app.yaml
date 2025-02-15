@@ -1,0 +1,8 @@
+runtime: nodejs14 # or the version you are using
+instance_class: F1 # Optional: choose instance class
+
+env: standard
+
+handlers:
+  - url: /.*
+    script: auto

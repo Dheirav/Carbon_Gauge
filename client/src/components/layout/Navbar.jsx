@@ -7,8 +7,8 @@ const Navbar = ({ onMenuClick }) => {
   const { logout } = useAuth();
 
   return (
-    <AppBar position="fixed">
-      <Toolbar>
+    <AppBar position="fixed" elevation={4} sx={{ backgroundColor: '#2E7D32', padding: '0 16px' }}>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <IconButton 
           color="inherit" 
           edge="start" 
@@ -17,17 +17,10 @@ const Navbar = ({ onMenuClick }) => {
         >
           <MenuIcon />
         </IconButton>
-        <Typography 
-          variant="h6" 
-          noWrap 
-          component="div" 
-          sx={{ 
-            flexGrow: 1,
-          }}
-        >
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
           Carbon Gauge
         </Typography>
-        <Button color="inherit" onClick={logout}>
+        <Button color="inherit" onClick={logout} sx={{ textTransform: 'none' }}>
           Logout
         </Button>
       </Toolbar>

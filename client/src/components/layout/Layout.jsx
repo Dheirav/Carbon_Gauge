@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
-import { Box, Container, useMediaQuery } from '@mui/material';
+import { Box, Container, useMediaQuery, Paper } from '@mui/material';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { useAuth } from '../../context/AuthContext';
@@ -38,11 +38,14 @@ const Layout = () => {
           p: 3,
           width: { sm: `calc(100% - 240px)`, md: '800px' },
           mt: 8,
-          backgroundColor: 'background.default'
+          backgroundColor: 'background.default',
+          transition: 'all 0.3s ease'
         }}
       >
         <Container maxWidth="lg">
-          <Outlet />
+          <Paper sx={{ p: 3, boxShadow: 3, borderRadius: 2 }}>
+            <Outlet />
+          </Paper>
         </Container>
       </Box>
     </Box>
