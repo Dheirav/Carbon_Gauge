@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Machine = require('../models/Machine');
+const auth = require('../middleware/auth');
 
 // Get all machine types
 router.get('/types', async (req, res) => {
@@ -60,74 +61,17 @@ router.get('/tool-materials', (req, res) => {
 });
 
 // Get emission factors
-router.get('/emission-factors', (req, res) => {
-    const emissionFactors = {
-        materials: {
-            'Aluminum (primary production)': 11.89,
-            'Aluminum (recycled)': 2.01,
-            'Stainless Steel': 6.15,
-            'Steel (general)': 1.77,
-            'Steel (recycled)': 0.88,
-            'Copper (primary production)': 3.83,
-            'Copper (recycled)': 2.77,
-            'Zinc (primary production)': 3.86,
-            'Zinc (recycled)': 0.48,
-            'Lead (primary production)': 2.61,
-            'Lead (recycled)': 0.53,
-            'Glass (virgin production)': 4.4,
-            'Glass (recycled)': 0.73,
-            'Cement': 0.89,
-            'Concrete': 0.15,
-            'Brick': 0.24,
-            'Lime': 0.74,
-            'Sand': 0.01,
-            'Gravel': 0.0048,
-            'Timber': 0.46,
-            'Plywood': 1.07,
-            'Medium-Density Fiberboard': 0.72,
-            'Polyethylene (PE)': 2.4,
-            'Polypropylene (PP)': 1.95,
-            'Polyvinyl Chloride (PVC)': 2.22,
-            'Polystyrene': 3.07,
-            'Polyethylene Terephthalate (PET)': 5.44,
-            'Nylon': 7.9,
-            'Polyurethane (rigid foam)': 3.61,
-            'Expanded Polystyrene (EPS)': 2.55,
-        },
-        chips: {
-            'Aluminum (primary production)': 1.23,
-            'Aluminum (recycled)': 0.56,
-            'Stainless Steel': 0.77,
-            'Steel (general)': 0.5,
-            'Steel (recycled)': 0.3,
-            'Copper (primary production)': 0.6,
-            'Copper (recycled)': 0.32,
-            'Zinc (primary production)': 0.53,
-            'Zinc (recycled)': 0.23,
-            'Lead (primary production)': 0.42,
-            'Lead (recycled)': 0.21,
-            'Glass (virgin production)': 0.6,
-            'Glass (recycled)': 0.27,
-            'Cement': 0.3,
-            'Concrete': 0.159,
-            'Brick': 0.24,
-            'Lime': 0.21,
-            'Sand': 0.0001,
-            'Gravel': 0,
-            'Timber': 0,
-            'Plywood': 0.09,
-            'Medium-Density Fiberboard': 0.3,
-            'Polyethylene (PE)': 0.7,
-            'Polypropylene (PP)': 0.5,
-            'Polyvinyl Chloride (PVC)': 0.432,
-            'Polystyrene': 0.55,
-            'Polyethylene Terephthalate (PET)': 0.44,
-            'Nylon': 0.23,
-            'Polyurethane (rigid foam)': 0.81,
-            'Expanded Polystyrene (EPS)': 0.33,
-        }
-    };
-    res.json(emissionFactors);
+router.get('/emission-factors', auth, async (req, res) => {
+    try {
+        const factors = {
+            'CNC': 4.75,
+            'VMC': 5.0,
+            // Add other machine types and their factors
+        };
+        res.status(200).send(factors);
+    } catch (error) {
+        res.status(500).send({ error: 'Failed to fetch emission factors' });
+    }
 });
 
 module.exports = router; 

@@ -45,7 +45,7 @@ const emissionSchema = new mongoose.Schema({
     parameters: {
         runTime: {
             type: Number,
-            required: true
+            required: false
         },
         toolMaterial: {
             type: String,
@@ -61,11 +61,11 @@ const emissionSchema = new mongoose.Schema({
         },
         workpieceMaterial: {
             type: String,
-            required: true
+            required: false
         },
         chipMass: {
             type: Number,
-            required: true
+            required: false
         },
         location: {
             type: {

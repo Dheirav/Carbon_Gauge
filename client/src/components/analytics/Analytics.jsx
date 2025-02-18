@@ -86,7 +86,7 @@ const Analytics = () => {
             datasets: [
                 {
                     label: 'Electrical Emission',
-                    data: emissionData.map(record => record.CEele),
+                    data: emissionData.map(record => record.CEelec),
                     backgroundColor: 'rgba(255, 99, 132, 0.5)',
                 },
                 {

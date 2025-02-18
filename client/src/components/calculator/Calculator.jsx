@@ -81,16 +81,8 @@ const Calculator = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isIndustrial, setIsIndustrial] = useState(false);
-  const [formData, setFormData] = useState({
+  const [industrialFormData, setIndustrialFormData] = useState({
     machineId: '',
-    hours: '',
-    toolMaterial: '',
-    toolMass: '',
-    runTime: '',
-    coolantType: '',
-    disposalMethod: '',
-    chipMass: '',
-    chipMaterial: '',
     pu: '',
     pi: '',
     tidle: '',
@@ -100,10 +92,28 @@ const Calculator = () => {
     vc: '',
     f: '',
     ap: '',
+    coolantType: '',
     CC: '',
     AC: '',
     coolantConcentration: '',
+    toolMaterial: '',
+    toolMass: '',
     material: '',
+    chipMass: '',
+  });
+  const [regularFormData, setRegularFormData] = useState({
+    machineId: '',
+    machineType: '',
+    manufacturer: '',
+    hours: '',
+    toolMaterial: '',
+    toolMass: '',
+    runTime: '',
+    coolantType: '',
+    disposalMethod: '',
+    chipMass: '',
+    material: '',
+    workpieceMaterial: '',
   });
   const [result, setResult] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -163,7 +173,9 @@ const Calculator = () => {
 
   const handleTypeChange = async (e) => {
     const type = e.target.value;
+    console.log('Selected machine type:', type); // Debug log
     setSelectedType(type);
+    setRegularFormData({ ...regularFormData, machineType: type });
     setLoading(true);
     try {
       const response = await axios.get(`/api/machines?type=${type}`);
@@ -177,64 +189,68 @@ const Calculator = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (isIndustrial) {
+        setIndustrialFormData({ ...industrialFormData, [name]: value });
+    } else {
+        setRegularFormData({ ...regularFormData, [name]: value });
+    }
   };
-
+  
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Submitting with data:', regularFormData); // Debug log
     setLoading(true);
     try {
-      let response;
-      if (isIndustrial) {
-        // POST to the industrial route with industrial parameters
-        response = await axios.post('/api/calculations/calculate-industrial', {
-          machineId: formData.machineId,
-          pu: formData.pu,
-          pi: formData.pi,
-          tidle: formData.tidle,
-          dw: formData.dw,
-          Lw: formData.Lw,
-          machiningAllowance: formData.machiningAllowance,
-          vc: formData.vc,
-          f: formData.f,
-          ap: formData.ap,
-          coolantType: formData.coolantType,
-          CC: formData.CC,
-          AC: formData.AC,
-          coolantConcentration: formData.coolantConcentration,
-          toolMaterial: formData.toolMaterial,
-          toolMass: formData.toolMass,
-          material: formData.material,
-          runTime: formData.runTime,
-          chipMass: formData.chipMass
-        }, { headers: { Authorization: `Bearer ${token}` } });
-      } else {
-        // Regular calculation (existing payload)
-        response = await axios.post('/api/calculations/calculate', {
-          machineId: formData.machineId,
-          hours: formData.hours,
-          toolMaterial: formData.toolMaterial,
-          toolMass: formData.toolMass,
-          runTime: formData.runTime,
-          coolantType: formData.coolantType,
-          disposalMethod: formData.disposalMethod,
-          chipMass: formData.chipMass,
-          material: formData.chipMaterial // For regular users, chip material is used
-        }, { headers: { Authorization: `Bearer ${token}` } });
-      }
-      setResult(response.data);
-      setActiveStep(steps.length);
+        let response;
+        if (isIndustrial) {
+            response = await axios.post('/api/calculations/calculate-industrial', {
+                machineId: industrialFormData.machineId,
+                pu: industrialFormData.pu,
+                pi: industrialFormData.pi,
+                tidle: industrialFormData.tidle,
+                dw: industrialFormData.dw,
+                Lw: industrialFormData.Lw,
+                machiningAllowance: industrialFormData.machiningAllowance,
+                vc: industrialFormData.vc,
+                f: industrialFormData.f,
+                ap: industrialFormData.ap,
+                coolantType: industrialFormData.coolantType,
+                CC: industrialFormData.CC,
+                AC: industrialFormData.AC,
+                coolantConcentration: industrialFormData.coolantConcentration,
+                toolMaterial: industrialFormData.toolMaterial,
+                toolMass: industrialFormData.toolMass,
+                material: industrialFormData.material,
+                chipMass: industrialFormData.chipMass
+            }, { headers: { Authorization: `Bearer ${token}` } });
+        } else {
+            const selectedMachine = machines.find(machine => machine._id === regularFormData.machineId);
+            response = await axios.post('/api/calculations/calculate', {
+                machineId: regularFormData.machineId,
+                machineType: regularFormData.machineType,
+                brand: selectedMachine ? selectedMachine.manufacturer : '',
+                hours: regularFormData.hours,
+                toolMaterial: regularFormData.toolMaterial,
+                toolMass: regularFormData.toolMass,
+                runTime: regularFormData.runTime,
+                coolantType: regularFormData.coolantType,
+                disposalMethod: regularFormData.disposalMethod,
+                chipMass: regularFormData.chipMass,
+                material: regularFormData.material,
+                parameters: {
+                    workpieceMaterial: regularFormData.workpieceMaterial
+                }
+            }, { headers: { Authorization: `Bearer ${token}` } });
+        }
+        setResult(response.data);
+        setActiveStep(steps.length);
     } catch (error) {
-      if (error.response?.data?.errors) {
-        // Use the validation errors returned by the server 
-        setFieldErrors(error.response.data.errors);
-      } else {
+        console.error('Error during calculation:', error);
         setError(error.response?.data?.error || 'Calculation failed');
-      }
     }
     setLoading(false);
   };
@@ -272,7 +288,7 @@ const Calculator = () => {
                   fullWidth
                   label="Select Machine"
                   name="machineId"
-                  value={formData.machineId}
+                  value={industrialFormData.machineId}
                   onChange={handleChange}
                   required
                 >
@@ -291,10 +307,10 @@ const Calculator = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Standby Power (Pu)"
+                  label="Standby Power (pu)"
                   name="pu"
                   type="number"
-                  value={formData.pu}
+                  value={industrialFormData.pu}
                   onChange={handleChange}
                   required
                 />
@@ -302,10 +318,10 @@ const Calculator = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Operational Power (Pi)"
+                  label="Total Power Consumption (pi)"
                   name="pi"
                   type="number"
-                  value={formData.pi}
+                  value={industrialFormData.pi}
                   onChange={handleChange}
                   required
                 />
@@ -316,7 +332,7 @@ const Calculator = () => {
                   label="Idle Time (sec)"
                   name="tidle"
                   type="number"
-                  value={formData.tidle}
+                  value={industrialFormData.tidle}
                   onChange={handleChange}
                   required
                 />
@@ -327,7 +343,7 @@ const Calculator = () => {
                   label="Workpiece Diameter (dw)"
                   name="dw"
                   type="number"
-                  value={formData.dw}
+                  value={industrialFormData.dw}
                   onChange={handleChange}
                   required
                 />
@@ -338,7 +354,7 @@ const Calculator = () => {
                   label="Workpiece Length (Lw)"
                   name="Lw"
                   type="number"
-                  value={formData.Lw}
+                  value={industrialFormData.Lw}
                   onChange={handleChange}
                   required
                 />
@@ -349,7 +365,7 @@ const Calculator = () => {
                   label="Machining Allowance (Δ)"
                   name="machiningAllowance"
                   type="number"
-                  value={formData.machiningAllowance}
+                  value={industrialFormData.machiningAllowance}
                   onChange={handleChange}
                   required
                 />
@@ -360,7 +376,7 @@ const Calculator = () => {
                   label="Cutting Velocity (vc)"
                   name="vc"
                   type="number"
-                  value={formData.vc}
+                  value={industrialFormData.vc}
                   onChange={handleChange}
                   required
                 />
@@ -371,7 +387,7 @@ const Calculator = () => {
                   label="Feed Rate (f)"
                   name="f"
                   type="number"
-                  value={formData.f}
+                  value={industrialFormData.f}
                   onChange={handleChange}
                   required
                 />
@@ -382,7 +398,7 @@ const Calculator = () => {
                   label="Depth of Cut (ap)"
                   name="ap"
                   type="number"
-                  value={formData.ap}
+                  value={industrialFormData.ap}
                   onChange={handleChange}
                   required
                 />
@@ -398,7 +414,7 @@ const Calculator = () => {
                   fullWidth
                   label="Tool Material"
                   name="toolMaterial"
-                  value={formData.toolMaterial}
+                  value={industrialFormData.toolMaterial}
                   onChange={handleChange}
                   required
                 >
@@ -415,7 +431,7 @@ const Calculator = () => {
                   label="Tool Mass (kg)"
                   name="toolMass"
                   type="number"
-                  value={formData.toolMass}
+                  value={industrialFormData.toolMass}
                   onChange={handleChange}
                   required
                 />
@@ -426,7 +442,7 @@ const Calculator = () => {
                   label="Run Time (hours)"
                   name="runTime"
                   type="number"
-                  value={formData.runTime || ''}
+                  value={industrialFormData.runTime || ''}
                   onChange={handleChange}
                   required
                   margin="normal"
@@ -445,7 +461,7 @@ const Calculator = () => {
                   fullWidth
                   label="Coolant Type"
                   name="coolantType"
-                  value={formData.coolantType}
+                  value={industrialFormData.coolantType}
                   onChange={handleChange}
                   required
                 >
@@ -462,7 +478,7 @@ const Calculator = () => {
                   label="Initial Cutting Fluid Volume (CC)"
                   name="CC"
                   type="number"
-                  value={formData.CC}
+                  value={industrialFormData.CC}
                   onChange={handleChange}
                   required
                 />
@@ -473,7 +489,7 @@ const Calculator = () => {
                   label="Additional Cutting Fluid Volume (AC)"
                   name="AC"
                   type="number"
-                  value={formData.AC}
+                  value={industrialFormData.AC}
                   onChange={handleChange}
                   required
                 />
@@ -484,7 +500,7 @@ const Calculator = () => {
                   label="Coolant Concentration (δ)"
                   name="coolantConcentration"
                   type="number"
-                  value={formData.coolantConcentration}
+                  value={industrialFormData.coolantConcentration}
                   onChange={handleChange}
                   required
                 />
@@ -500,7 +516,7 @@ const Calculator = () => {
                   fullWidth
                   label="Material"
                   name="material"
-                  value={formData.material}
+                  value={industrialFormData.material}
                   onChange={handleChange}
                   required
                 >
@@ -510,20 +526,6 @@ const Calculator = () => {
                     </MenuItem>
                   ))}
                 </TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Chip Mass (kg)"
-                  name="chipMass"
-                  type="number"
-                  value={formData.chipMass || ''}
-                  onChange={handleChange}
-                  required
-                  margin="normal"
-                  error={!!fieldErrors?.chipMass}
-                  helperText={fieldErrors?.chipMass || ""}
-                />
               </Grid>
             </Grid>
           );
@@ -540,7 +542,7 @@ const Calculator = () => {
                   select
                   fullWidth
                   label="Select Machine Type"
-                  value={selectedType}
+                  value={regularFormData.machineType}
                   onChange={handleTypeChange}
                   required
                 >
@@ -562,7 +564,7 @@ const Calculator = () => {
                   fullWidth
                   label="Select Machine"
                   name="machineId"
-                  value={formData.machineId}
+                  value={regularFormData.machineId}
                   onChange={handleChange}
                   required
                 >
@@ -584,7 +586,7 @@ const Calculator = () => {
                   fullWidth
                   label="Tool Material"
                   name="toolMaterial"
-                  value={formData.toolMaterial}
+                  value={regularFormData.toolMaterial}
                   onChange={handleChange}
                   required
                 >
@@ -601,7 +603,7 @@ const Calculator = () => {
                   label="Tool Mass (kg)"
                   name="toolMass"
                   type="number"
-                  value={formData.toolMass}
+                  value={regularFormData.toolMass}
                   onChange={handleChange}
                   required
                 />
@@ -612,7 +614,7 @@ const Calculator = () => {
                   label="Run Time (seconds)"
                   name="runTime"
                   type="number"
-                  value={formData.runTime}
+                  value={regularFormData.runTime}
                   onChange={handleChange}
                   required
                 />
@@ -623,7 +625,7 @@ const Calculator = () => {
                   label="Operating Hours"
                   name="hours"
                   type="number"
-                  value={formData.hours}
+                  value={regularFormData.hours}
                   onChange={handleChange}
                   required
                 />
@@ -639,7 +641,7 @@ const Calculator = () => {
                   fullWidth
                   label="Coolant Type"
                   name="coolantType"
-                  value={formData.coolantType}
+                  value={regularFormData.coolantType}
                   onChange={handleChange}
                   required
                 >
@@ -656,7 +658,7 @@ const Calculator = () => {
                   fullWidth
                   label="Disposal Method"
                   name="disposalMethod"
-                  value={formData.disposalMethod}
+                  value={regularFormData.disposalMethod}
                   onChange={handleChange}
                   required
                 >
@@ -677,8 +679,8 @@ const Calculator = () => {
                   select
                   fullWidth
                   label="Chip Material"
-                  name="chipMaterial"
-                  value={formData.chipMaterial}
+                  name="material"
+                  value={regularFormData.material}
                   onChange={handleChange}
                   required
                 >
@@ -695,7 +697,7 @@ const Calculator = () => {
                   label="Chip Mass (kg)"
                   name="chipMass"
                   type="number"
-                  value={formData.chipMass}
+                  value={regularFormData.chipMass}
                   onChange={handleChange}
                   required
                 />
@@ -709,7 +711,7 @@ const Calculator = () => {
   };
 
   return (
-    <Paper sx={{ p: 3 }}>
+    <Paper sx={{ p: 3, maxHeight: '80vh', overflowY: 'auto' }}>
       <Typography variant="h5" gutterBottom>
         Emissions Calculator
       </Typography>
@@ -757,7 +759,7 @@ const Calculator = () => {
                       Emissions Breakdown
                     </Typography>
                     <Divider sx={{ mb: 2 }} />
-                    <Typography>Electrical Emission: {result.CEele.toFixed(2)} kg CO₂</Typography>
+                    <Typography>Electrical Emission: {result.CEelec.toFixed(2)} kg CO₂</Typography>
                     <Typography>Tool Emission: {result.CEtool.toFixed(2)} kg CO₂</Typography>
                     <Typography>Coolant Emission: {result.CEcoolant.toFixed(2)} kg CO₂</Typography>
                     <Typography>Material Emission: {result.CEm.toFixed(2)} kg CO₂</Typography>

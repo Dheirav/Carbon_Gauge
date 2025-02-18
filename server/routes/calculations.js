@@ -17,62 +17,23 @@ router.get('/machines', auth, async (req, res) => {
 
 // Calculate emissions
 router.post('/calculate', auth, async (req, res) => {
+    console.log('Received calculation request:', req.body); // Debug log
     try {
-        const {
-            machineId,
-            hours,
-            toolMaterial,
-            toolMass,
-            runTime,
-            coolantType,
-            disposalMethod,
-            material,
-            chipMass,
-            location
-        } = req.body;
-
-        const machine = await Machine.findById(machineId);
-        if (!machine) {
-            return res.status(404).send({ error: 'Machine not found' });
-        }
-
-        const result = await CalculationService.calculateTotalEmission({
-            machineType: machine.type,
-            brand: machine.manufacturer,
-            hours,
-            toolMaterial,
-            toolMass,
-            runTime,
-            coolantType,
-            disposalMethod,
-            material,
-            chipMass
-        });
-
-        // Save calculation results
+        const result = await CalculationService.calculateRegularTotalEmission(req.body);
+        // Save calculation results to the database
         const emission = new Emission({
             userId: req.user._id,
-            machineId,
-            CEele: result.CEele,
+            machineId: req.body.machineId,
+            machineType: req.body.machineType,
+            brand: req.body.manufacturer,
+            CEele: result.CEelec,
             CEtool: result.CEtool,
             CEcoolant: result.CEcoolant,
             CEm: result.CEm,
             CEchip: result.CEchip,
             totalEmission: result.total,
-            parameters: {
-                runTime,
-                toolMaterial,
-                toolMass,
-                coolantType,
-                workpieceMaterial: material,
-                chipMass,
-                location: location ? {
-                    type: 'Point',
-                    coordinates: [location.longitude, location.latitude]
-                } : undefined
-            }
+            parameters: req.body // Save all parameters for reference
         });
-
         await emission.save();
         res.json(result);
     } catch (error) {
@@ -107,86 +68,36 @@ router.delete('/history', auth, async (req, res) => {
 // New route for Industrial Emission Calculation
 router.post('/calculate-industrial', auth, async (req, res) => {
     try {
-        const {
-            machineId,
-            pu,
-            pi,
-            tidle,
-            dw,
-            Lw,
-            machiningAllowance,
-            vc,
-            f,
-            ap,
-            coolantType,
-            CC,
-            AC,
-            coolantConcentration,
-            toolMaterial,
-            toolMass,
-            material
-        } = req.body;
-
-        const machine = await Machine.findById(machineId);
-        if (!machine) {
-            return res.status(404).send({ error: 'Machine not found' });
-        }
-
-        const result = await CalculationService.calculateIndustrialTotalEmission({
-            machineId,
-            pu,
-            pi,
-            tidle,
-            dw,
-            Lw,
-            machiningAllowance,
-            vc,
-            f,
-            ap,
-            coolantType,
-            CC,
-            AC,
-            coolantConcentration,
-            toolMaterial,
-            toolMass,
-            material
-        });
-
-        // Save industrial calculation results into the Emission model (adjust parameters as desired)
+        const result = await CalculationService.calculateIndustrialTotalEmission(req.body);
+        console.log('Industrial calculation result:', result); // Log the result before saving
         const emission = new Emission({
             userId: req.user._id,
-            machineId,
-            CEelec: result.CEelec,
+            machineId: req.body.machineId,
+            machineType: req.body.machineType,
+            brand: req.body.manufacturer,
+            CEele: result.CEelec,
             CEtool: result.CEtool,
             CEcoolant: result.CEcoolant,
             CEm: result.CEm,
             CEchip: result.CEchip,
             totalEmission: result.total,
-            parameters: {
-                pu,
-                pi,
-                tidle,
-                dw,
-                Lw,
-                machiningAllowance,
-                vc,
-                f,
-                ap,
-                coolantType,
-                CC,
-                AC,
-                coolantConcentration,
-                toolMaterial,
-                toolMass,
-                workpieceMaterial: material
-            }
+            parameters: req.body
         });
-
         await emission.save();
-        res.json(result);
+        res.status(200).send(result);
     } catch (error) {
-        console.error('Industrial calculation error:', error);
+        console.error('Error saving industrial emission:', error);
         res.status(500).send({ error: error.message });
+    }
+});
+
+// Route for fetching emission factors
+router.get('/emission-factors', auth, async (req, res) => {
+    try {
+        const factors = await getEmissionFactors(); // Implement this function to fetch factors
+        res.status(200).send(factors);
+    } catch (error) {
+        res.status(500).send({ error: 'Failed to fetch emission factors' });
     }
 });
 
