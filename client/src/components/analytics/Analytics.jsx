@@ -65,7 +65,7 @@ const Analytics = () => {
                 const response = await axios.get('/api/settings', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                setComplianceThreshold(response.data.complianceThreshold || 10);
+                setComplianceThreshold(response.data.complianceThreshold);
             } catch (err) {
                 console.error('Failed to load compliance threshold:', err);
             }

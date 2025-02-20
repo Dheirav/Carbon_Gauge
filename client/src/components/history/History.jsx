@@ -68,6 +68,7 @@ const History = () => {
   if (error) return <Alert severity="error">{error}</Alert>;
 
   return (
+    <Box sx={{ maxHeight: 600, overflow: 'auto' }}>
     <Paper sx={{ p: 3 }}>
       <Typography variant="h5" gutterBottom>
         Calculation History
@@ -163,6 +164,7 @@ const History = () => {
         </Button>
       </Box>
     </Paper>
+    </Box>
   );
 };
 
