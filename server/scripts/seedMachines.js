@@ -65,18 +65,6 @@ const machines = [
     { type: 'Grinding', manufacturer: 'Brother Industries', powerConsumption: 5, carbonIntensity: 0.475, emissionFactor: 2.38 },
     { type: 'Grinding', manufacturer: 'Hyundai WIA', powerConsumption: 7, carbonIntensity: 0.475, emissionFactor: 3.33 },
 
-    // 3D Printers
-    { type: '3D Printer', manufacturer: 'Stratasys', powerConsumption: 2, carbonIntensity: 0.475, emissionFactor: 0.95 },
-    { type: '3D Printer', manufacturer: 'Ultimaker', powerConsumption: 1.5, carbonIntensity: 0.475, emissionFactor: 0.71 },
-    { type: '3D Printer', manufacturer: 'Formlabs', powerConsumption: 1.2, carbonIntensity: 0.475, emissionFactor: 0.57 },
-    { type: '3D Printer', manufacturer: 'Prusa Research', powerConsumption: 1, carbonIntensity: 0.475, emissionFactor: 0.48 },
-    { type: '3D Printer', manufacturer: 'Creality', powerConsumption: 1.8, carbonIntensity: 0.475, emissionFactor: 0.86 },
-    { type: '3D Printer', manufacturer: 'Markforged', powerConsumption: 2.2, carbonIntensity: 0.475, emissionFactor: 1.04 },
-    { type: '3D Printer', manufacturer: 'Anycubic', powerConsumption: 1.6, carbonIntensity: 0.475, emissionFactor: 0.76 },
-    { type: '3D Printer', manufacturer: 'Raise3D', powerConsumption: 2.5, carbonIntensity: 0.475, emissionFactor: 1.19 },
-    { type: '3D Printer', manufacturer: 'LulzBot', powerConsumption: 1.7, carbonIntensity: 0.475, emissionFactor: 0.81 },
-    { type: '3D Printer', manufacturer: 'Dremel', powerConsumption: 2, carbonIntensity: 0.475, emissionFactor: 0.95 },
-
     // Hydraulic Presses
     { type: 'Hydraulic Press', manufacturer: 'Enerpac', powerConsumption: 20, carbonIntensity: 0.475, emissionFactor: 9.5 },
     { type: 'Hydraulic Press', manufacturer: 'Dake', powerConsumption: 18, carbonIntensity: 0.475, emissionFactor: 8.55 },

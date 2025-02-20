@@ -233,7 +233,6 @@ const Calculator = () => {
                 machineId: regularFormData.machineId,
                 machineType: regularFormData.machineType,
                 brand: selectedMachine ? selectedMachine.manufacturer : '',
-                hours: regularFormData.hours,
                 toolMaterial: regularFormData.toolMaterial,
                 toolMass: regularFormData.toolMass,
                 runTime: regularFormData.runTime,
@@ -241,9 +240,6 @@ const Calculator = () => {
                 disposalMethod: regularFormData.disposalMethod,
                 chipMass: regularFormData.chipMass,
                 material: regularFormData.material,
-                parameters: {
-                    workpieceMaterial: regularFormData.workpieceMaterial
-                }
             }, { headers: { Authorization: `Bearer ${token}` } });
         }
         setResult(response.data);
@@ -307,7 +303,7 @@ const Calculator = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Standby Power (pu)"
+                  label="Standby Power (kW)"
                   name="pu"
                   type="number"
                   value={industrialFormData.pu}
@@ -318,7 +314,7 @@ const Calculator = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Total Power Consumption (pi)"
+                  label="Total Power Consumption (kW)"
                   name="pi"
                   type="number"
                   value={industrialFormData.pi}
@@ -340,7 +336,7 @@ const Calculator = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Workpiece Diameter (dw)"
+                  label="Workpiece Diameter (mm)"
                   name="dw"
                   type="number"
                   value={industrialFormData.dw}
@@ -351,7 +347,7 @@ const Calculator = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Workpiece Length (Lw)"
+                  label="Workpiece Length (mm)"
                   name="Lw"
                   type="number"
                   value={industrialFormData.Lw}
@@ -362,7 +358,7 @@ const Calculator = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Machining Allowance (Δ)"
+                  label="Machining Allowance (mm)"
                   name="machiningAllowance"
                   type="number"
                   value={industrialFormData.machiningAllowance}
@@ -373,7 +369,7 @@ const Calculator = () => {
               <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
-                  label="Cutting Velocity (vc)"
+                  label="Cutting Velocity (m/s)"
                   name="vc"
                   type="number"
                   value={industrialFormData.vc}
@@ -384,7 +380,7 @@ const Calculator = () => {
               <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
-                  label="Feed Rate (f)"
+                  label="Feed Rate (mm/r)"
                   name="f"
                   type="number"
                   value={industrialFormData.f}
@@ -395,7 +391,7 @@ const Calculator = () => {
               <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
-                  label="Depth of Cut (ap)"
+                  label="Depth of Cut (mm)"
                   name="ap"
                   type="number"
                   value={industrialFormData.ap}
@@ -436,20 +432,6 @@ const Calculator = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Run Time (hours)"
-                  name="runTime"
-                  type="number"
-                  value={industrialFormData.runTime || ''}
-                  onChange={handleChange}
-                  required
-                  margin="normal"
-                  error={!!fieldErrors?.runTime}
-                  helperText={fieldErrors?.runTime || ""}
-                />
-              </Grid>
             </Grid>
           );
         case 4:
@@ -475,7 +457,7 @@ const Calculator = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Initial Cutting Fluid Volume (CC)"
+                  label="Initial Cutting Fluid Volume (l)"
                   name="CC"
                   type="number"
                   value={industrialFormData.CC}
@@ -486,7 +468,7 @@ const Calculator = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Additional Cutting Fluid Volume (AC)"
+                  label="Additional Cutting Fluid Volume (l)"
                   name="AC"
                   type="number"
                   value={industrialFormData.AC}
@@ -497,7 +479,7 @@ const Calculator = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Coolant Concentration (δ)"
+                  label="Coolant Concentration (%)"
                   name="coolantConcentration"
                   type="number"
                   value={industrialFormData.coolantConcentration}
@@ -619,17 +601,6 @@ const Calculator = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Operating Hours"
-                  name="hours"
-                  type="number"
-                  value={regularFormData.hours}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
             </Grid>
           );
         case 3:
@@ -678,7 +649,7 @@ const Calculator = () => {
                 <TextField
                   select
                   fullWidth
-                  label="Chip Material"
+                  label="Material"
                   name="material"
                   value={regularFormData.material}
                   onChange={handleChange}
@@ -694,7 +665,7 @@ const Calculator = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Chip Mass (kg)"
+                  label=" Mass (kg)"
                   name="chipMass"
                   type="number"
                   value={regularFormData.chipMass}
@@ -802,10 +773,6 @@ const Calculator = () => {
           </Box>
         )}
       </form>
-
-      {emissionFactors && (
-        <Typography variant="h6">Emission Factors Loaded</Typography>
-      )}
     </Paper>
   );
 };

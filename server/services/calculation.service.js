@@ -3,13 +3,13 @@ const mongoose = require('mongoose');
 
 class CalculationService {
     // Calculate Electrical Emission (CEele)
-    static async calculateCEelec(machineType, brand, hours) {
+    static async calculateCEelec(machineType, brand, ) {
         // Fetch the machine data based on type and brand
         const machine = await Machine.findOne({ type: machineType, manufacturer: brand });
         if (!machine) {
             throw new Error(`Machine of type ${machineType} and brand ${brand} not found.`);
         }
-        return machine.emissionFactor * hours;
+        return machine.emissionFactor;
     }
 
     // Calculate Tool Emission (CEtool)
@@ -46,8 +46,8 @@ class CalculationService {
             'Advanced Ultra-Hard Nanocomposite Tools': { CEFtool: 28.5, Ttool: 100 }
         };
 
-        const { CEFtool, Ttool } = toolFactors[toolMaterial] || toolFactors['High-Speed Steel (HSS)'];
-        return (runTime / Ttool) * CEFtool * toolMass;
+        const { CEFtool, Ttool } = toolFactors[toolMaterial];
+        return (runTime /(Ttool*60)) * CEFtool * toolMass;
     }
 
     // Calculate Coolant Emission (CEcoolant)
@@ -56,8 +56,8 @@ class CalculationService {
             'Water-Based': { lifetime: 10, CEFcoolant: 0.2 },
             'Oil-Based': { lifetime: 10, CEFcoolant: 2.85 },
             'Synthetic Coolant': { lifetime: 10, CEFcoolant: 3 },
-            'Semi-Synthetic': { lifetime: 10, CEFcoolant: 2 },
-            'Vegetable-Based': { lifetime: 10, CEFcoolant: 1.5 }
+            'Semi-Synthetic': { lifetime: 8, CEFcoolant: 2 },
+            'Vegetable-Based': { lifetime: 5, CEFcoolant: 1.5 }
 
         };
 
@@ -71,8 +71,8 @@ class CalculationService {
         const { lifetime, CEFcoolant } = coolantFactors[coolantType];
         const CEFwc = disposalFactors[disposalMethod];
 
-        const CEoil = CEFcoolant * 13;
-        const CEwc = CEFwc * 260;
+         const CEoil = CEFcoolant ;
+         const CEwc = CEFwc;// * 260;
 
         return (runTime / lifetime) * (CEoil + CEwc);
     }
@@ -112,7 +112,7 @@ class CalculationService {
             'Expanded Polystyrene (EPS)': 2.55,
         };
 
-        const CEFm = materialFactors[material] || 0; // Default to 0 if material not found
+        const CEFm = materialFactors[material]; // Default to 0 if material not found
         return CEFm * mass;
     }
 
@@ -151,7 +151,7 @@ class CalculationService {
             'Expanded Polystyrene (EPS)': 0.33,
         };
 
-        const CEFchip = chipFactors[material] || 0; // Default to 0 if material not found
+        const CEFchip = chipFactors[material]; // Default to 0 if material not found
         return CEFchip * mass;
     }
 
@@ -161,18 +161,34 @@ class CalculationService {
         console.log('Calculating total emission with parameters:', params);
 
         // Validate required parameters
-        const requiredParams = ['machineType', 'brand', 'hours', 'toolMaterial', 'toolMass', 'runTime', 'coolantType', 'disposalMethod', 'material', 'chipMass'];
+        const requiredParams = ['machineType', 'brand', 'toolMaterial', 'toolMass', 'runTime', 'coolantType', 'disposalMethod', 'material', 'chipMass'];
         for (const param of requiredParams) {
             if (!params[param]) {
                 throw new Error(`Missing required parameter: ${param}`);
             }
         }
 
-        const CEelec= await this.calculateCEelec(params.machineType, params.brand, params.hours);
-        const CEtool = this.calculateCEtool(params.runTime, params.toolMaterial, params.toolMass);
-        const CEcoolant = this.calculateCEcoolant(params.runTime, params.coolantType, params.disposalMethod);
-        const CEm = this.calculateCEm(params.material, params.chipMass);
-        const CEchip = this.calculateCEchip(params.material, params.chipMass);
+        // Convert parameters to floats
+        const toolMass = parseFloat(params.toolMass);
+        const runTime = parseFloat(params.runTime);
+        const chipMass = parseFloat(params.chipMass) || 0; // Default to 0 if empty
+
+        // Ensure all required parameters are valid numbers
+        if (isNaN(chipMass)){
+            throw new Error('Invalid input: chipMass');
+        }
+        if (isNaN(runTime)){
+            throw new Error('Invalid input:  runTime');
+        }
+        if (isNaN(toolMass)){
+            throw new Error('Invalid input:  toolMass');
+        }
+
+        const CEelec = await this.calculateCEelec(params.machineType, params.brand);
+        const CEtool = this.calculateCEtool(runTime, params.toolMaterial, toolMass);
+        const CEcoolant = this.calculateCEcoolant(runTime, params.coolantType, params.disposalMethod);
+        const CEm = this.calculateCEm(params.material, chipMass);
+        const CEchip = this.calculateCEchip(params.material, chipMass);
         const total = CEelec + CEtool + CEcoolant + CEm + CEchip;
 
         return {
@@ -190,8 +206,17 @@ class CalculationService {
         // Validate required industrial parameters
         const requiredParams = [
             'pu', 'pi', 'tidle', 'dw', 'Lw', 'machiningAllowance', 'vc', 'f', 'ap',
-            'coolantType', 'CC', 'AC', 'coolantConcentration', 'toolMaterial', 'toolMass', 'material', 'chipMass'
+            'coolantType', 'CC', 'AC', 'coolantConcentration', 'toolMaterial', 'toolMass', 'material'
         ];
+        const numParams = [
+            'pu', 'pi', 'tidle', 'dw', 'Lw', 'machiningAllowance', 'vc', 'f', 'ap','toolMass','CC', 'AC', 'coolantConcentration'
+        ];
+
+        for (const key in numParams) {
+            if (!isNaN(numParams[key])&&numParams[key]!== "") {
+                numParams[key] = parseFloat(numParams[key]);
+        }
+    }
         for (const param of requiredParams) {
             if (params[param] === undefined || params[param] === null) {
                 throw new Error(`Missing required parameter: ${param}`);
@@ -200,7 +225,8 @@ class CalculationService {
 
         // Calculate tc
         const { dw, Lw, machiningAllowance, vc, f, ap } = params;
-        const tc = (Math.PI * dw * Lw * machiningAllowance) / (1000 * (vc / 60) * f * ap); // Convert vc to m/s
+        const tc = (3.14 * dw * Lw * machiningAllowance) / (1000 * vc * f * ap); 
+        
 
         // Calculate ECmachine
         const { pu, tidle, pi } = params;
@@ -223,8 +249,11 @@ class CalculationService {
             'Vegetable-Based': { CEFoil: 1.5, CEFwc: 0.3 }
 
         };
-        const { CC, AC, coolantConcentration } = params;
+        let { CC, AC, coolantConcentration } = params;
         const { CEFoil, CEFwc } = coolantFactors[params.coolantType];
+
+        CC = parseFloat(CC);
+        AC = parseFloat(AC);
 
         // Calculate CEoil and CEwc
         const CEoil = CEFoil * (CC + AC);
@@ -269,10 +298,10 @@ class CalculationService {
             'Polyurethane (rigid foam)': { EEce: 3.76, ECce: 1.8, density: 0.03 },
             'Expanded Polystyrene (EPS)': { EEce: 4.98, ECce: 1.6, density: 0.02 }
         };
-        const materialData = materialFactors[params.material] || materialFactors['Steel (general)'];
+        const materialData = materialFactors[params.material];
         const { density } = materialData;
         const CEFm = materialData.EEce * CEFce;
-        const Mchip = (vc / 60) * ap * f * tc * density / 1000; // Convert vc to m/s
+        const Mchip = vc * ap * f * tc * density / 1000; // Convert vc to m/s
         const CEm = CEFm * Mchip;
 
         // Calculate CEchip

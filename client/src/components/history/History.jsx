@@ -118,7 +118,7 @@ const History = () => {
                             alignItems: 'flex-start'
                           }}>
                               <Box sx={{ flex: 1 }}>
-                                <Typography>Electrical Emission: {record.CEelec ? record.CEelec.toFixed(2) : 'N/A'} kg CO₂</Typography>
+                                <Typography>Electrical Emission: {record.CEele.toFixed(2)} kg CO₂</Typography>
                                 <Typography>Tool Emission: {record.CEtool.toFixed(2)} kg CO₂</Typography>
                                 <Typography>Coolant Emission: {record.CEcoolant.toFixed(2)} kg CO₂</Typography>
                                 <Typography>Material Emission: {record.CEm.toFixed(2)} kg CO₂</Typography>
@@ -130,7 +130,7 @@ const History = () => {
                                     labels: ['Electrical', 'Tool', 'Coolant', 'Material', 'Chip'],
                                     datasets: [{
                                       data: [
-                                        record.CEelec, 
+                                        record.CEele, 
                                         record.CEtool, 
                                         record.CEcoolant, 
                                         record.CEm, 
