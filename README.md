@@ -196,4 +196,6 @@ Different materials influence emissions based on their processing characteristic
 - **Mobile Application Support**
 - **Custom User Notifications & Alerts**
 
+## Author
+Created by Dheirav Prakash 
 
