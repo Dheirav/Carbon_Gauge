@@ -156,6 +156,12 @@ Different materials influence emissions based on their processing characteristic
      MONGODB_URI=your_mongo_connection_string
      JWT_SECRET=your_secret_key
      ```
+5. **Seeding the Database**
+   ```bash
+   cd server
+   cd scripts
+   node seedMachines.js
+   ```
 
 ### **Running the Application**
 
