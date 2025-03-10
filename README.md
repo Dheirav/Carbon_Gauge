@@ -1,132 +1,147 @@
 # Carbon Emissions Tracker
 
-A web-based application designed to track and analyze carbon emissions from industrial and commercial machines. The application helps users input machine parameters, receive emission calculations, check regulatory compliance, visualize data, and obtain tailored mitigation suggestions.
+A web-based application designed to track and analyze carbon emissions from industrial and commercial machines. The application empowers users with tools to input machine parameters, obtain emission calculations, check regulatory compliance, visualize data, and receive tailored mitigation suggestions. The system is built to cater to both general users seeking basic estimates and industrial professionals requiring in-depth insights and compliance assessments.
 
 ---
 
 ## Overview
 
-The Carbon Emissions Tracker enables:
-- **Accurate Emission Calculations**: Compute multiple emission components based on predefined formulas.
-- **User Role Flexibility**: Choose between **Regular User** (basic inputs and estimates) and **Industrial User** (detailed specification for comprehensive reports).
-- **Interactive Analytics**: Visualize historical data, compliance indicators, and data trends.
-- **Data Export & Sharing**: Export reports in CSV, JSON, and other formats for further data analysis.
+The **Carbon Emissions Tracker** provides:
+
+- **Accurate Emission Calculations**: Computes multiple emission components using industry-standard formulas and empirical data.
+- **User Role Flexibility**: Supports both **Regular Users** (basic inputs and estimates) and **Industrial Users** (detailed specifications for comprehensive reports and compliance tracking).
+- **Interactive Analytics**: Enables visualization of historical data, compliance indicators, and trends to facilitate strategic decision-making.
+- **Data Export & Sharing**: Allows users to export reports in CSV, JSON, and other formats for advanced data analysis and integration with external sustainability dashboards.
+- **Regulatory Compliance Checks**: Evaluates emissions against global and regional environmental standards to ensure regulatory adherence.
+- **Customizable Dashboards**: Tailors user experiences based on role, offering role-specific features and insights.
 
 ---
 
 ## User Roles
 
-- **Regular User**
-  - Provides basic machine parameters for a simplified emissions estimate.
-  - Receives a basic compliance check and general reduction suggestions.
+### **Regular User**
 
-- **Industrial User**
-  - Inputs detailed machine specifications for comprehensive reports.
-  - Supports multiple machine entries for factory-wide tracking.
-  - Access to advanced data visualizations, trend analysis, and mitigation strategies.
+- Provides fundamental machine parameters for a simplified emissions estimate.
+- Receives a basic compliance check and generalized emission reduction suggestions.
+- Accesses historical reports with limited analytical tools.
+- Ideal for individuals and small-scale businesses looking for a quick emissions assessment.
+
+### **Industrial User**
+
+- Inputs detailed machine specifications to generate comprehensive emissions reports.
+- Supports multiple machine entries, facilitating factory-wide tracking and trend analysis.
+- Accesses advanced data visualizations, historical emission trends, and machine performance comparisons.
+- Obtains in-depth compliance analysis against regulatory benchmarks.
+- Gains actionable mitigation strategies based on machine-specific emission factors and operational parameters.
+- Suitable for industries, manufacturing plants, and regulatory bodies requiring deep insights into emissions.
 
 ---
 
 ## Core Features
 
-1. **Authentication & User Management**  
-   - Secure login and registration.
-   - Role selection (Regular or Industrial) to customize dashboards and reporting features.
+### **1. Authentication & User Management**
 
-2. **Machine Selection & Calculation**  
-   - **Searchable Machine Database:** Quickly find machines by industry, fuel type, or function.
-   - **Dynamic Selection:** Options to select pre-defined machines or input custom machines.
-   - **Parameter Input System:** Enter key values like fuel consumption, operating hours, and power usage.
-   - **Real-Time Calculation Engine:** Utilizes predefined formulas to compute emission components.
+- Secure login and user registration system.
+- Role selection during signup (Regular or Industrial User).
+- Personalized dashboards offering relevant tools and reports.
+- JWT-based authentication ensuring secure access to user data.
 
-3. **Emissions Report & Compliance Analysis**  
-   - **Detailed Emissions Breakdown:**
-   - **Regulatory Compliance Check:** Compares machine emissions against global environmental standards.
-   - **Exportable Reports:** Download reports in PDF, CSV, or JSON formats.
+### **2. Machine Selection & Calculation**
 
-4. **Export & Data Sharing**  
-   - Export your data for advanced analysis or integration with sustainability dashboards.
+- **Searchable Machine Database**: Users can quickly find machines by industry type, fuel type, or function.
+- **Dynamic Selection**: Offers predefined machines with preset emission factors or allows custom machine entries.
+- **Parameter Input System**: Users can enter key values such as fuel consumption, operating hours, power usage, and material specifics.
+- **Real-Time Calculation Engine**: Utilizes predefined and configurable formulas to compute CO₂ and other emission components.
+- **Batch Processing**: Industrial users can upload bulk machine data for simultaneous processing.
 
----
+### **3. Emissions Report & Compliance Analysis**
 
-## Carbon Emission Calculation Logic
+- **Detailed Emissions Breakdown**: Provides a granular analysis of CO₂, CH₄, NOₓ, and other pollutants.
+- **Regulatory Compliance Check**: Compares machine emissions against various international standards (e.g., EPA, EU Emissions Trading System, ISO 14064).
+- **Industry-Specific Emission Standards**: Evaluates compliance based on manufacturing sector, fuel types, and operational conditions.
+- **Automated Report Generation**: Users receive downloadable reports (PDF, CSV, JSON) with insights, visual data, and compliance status.
 
-The total carbon emission is calculated as:
+### **4. Visualization & Data Analytics**
 
-  CEms = CEele + CEtool + CEcoolant + CEm + CEchip
+- **Interactive Charts & Graphs**: Uses Chart.js for dynamic, real-time data visualization.
+- **Emission Trends & Forecasting**: Analyzes historical data to predict future emission levels.
+- **Comparison Tools**: Compares emissions across different machines, time periods, or operational settings.
+- **Geospatial Mapping**: Provides an emissions heatmap displaying high-pollution zones and machine contributions.
 
-Where:
+### **5. Export & Data Sharing**
 
-- **CEele (Electrical Emission):**  
-  Calculated based on the machine type and brand-specific carbon emission factors (kg CO₂/hr).
-
-- **CEtool (Tool Emission):**  
-  $$ CEtool = \left( \frac{T_c}{T_{tool}} \right) \times \text{CFm} \times \text{Mass of Tool} $$  
-  – Depends on tool material, run time (Tc), mass of the tool, carbon footprint per unit mass (CFm), and lifetime (Ttool).
-
-- **CEcoolant (Coolant Emission):**  
-  $$ CEcoolant = \left( \frac{T}{T_{coolant}} \right) \times (CEoil + CEwc) $$  
-  – Incorporates coolant type, run time (T), disposal method, and factors like CEFoil & CEFwc.
-
-- **CEm (Material Emission):**  
-  $$ CEm = CEFm \times Mchip $$  
-  – Based on workpiece material and chip mass.
-
-- **CEchip (Chip Emission):**  
-  $$ CEchip = CEFchip \times Mchip $$  
-  – Similar to CEm but uses a different emission factor.
+- **Multi-Format Export**: Supports CSV, JSON, PDF, and API integration.
+- **Collaboration & Sharing**: Users can share reports internally or with external auditors and regulatory agencies.
+- **API Integration**: Allows seamless connectivity with sustainability dashboards, IoT sensors, and ERP systems.
 
 ---
 
 ## Data Sets for Calculations
 
-### Machine Emission Factors
-Emission factors are provided for various machine types (CNC, VMC, Milling, HMC, etc.) and manufacturers. For example:
+### **Machine Emission Factors**
 
-- **CNC Machines** (e.g., Mazak: 4.75 kg CO₂/hr, DMG Mori: 5.7 kg CO₂/hr, etc.)
+Emission factors are determined for various machine types such as CNC, VMC, Milling, HMC, and others. Factors include:
 
-### Workpiece Material Emission Factors
-Factors based on selected material (e.g., steel, aluminum, copper, etc.) determine CEm and CEchip.
+- Fuel type and efficiency
+- Operational power consumption
+- Machine-specific CO₂ output per hour
 
-### Coolant and Waste Coolant Emission Factors
-Detailed factors for coolant types (mineral-based, synthetic, etc.) including lifetimes and corresponding carbon emission factors are available for calculating CEcoolant.
+### **Workpiece Material Emission Factors**
 
-For full tables and further details, please refer to the documentation or supplementary materials.
+Different materials influence emissions based on their processing characteristics:
+
+- **Steel:** Higher emission factors due to energy-intensive processing.
+- **Aluminum:** Moderate emissions with high recyclability impact.
+- **Copper:** Variable emissions based on refining and processing techniques.
+
+### **Coolant and Waste Coolant Emission Factors**
+
+- **Coolant Type:** Mineral-based, synthetic, and water-soluble coolant emissions.
+- **Lifetime Impact:** How coolant degradation affects emissions over time.
+- **Disposal & Recycling:** Emission factors based on proper disposal or reuse.
 
 ---
 
 ## Technologies Used
 
-- **Frontend:** React.js (bootstrapped with Create React App)
-- **Backend:** Express.js
-- **Database:** MongoDB (with Mongoose)
-- **Authentication:** JSON Web Tokens (JWT)
-- **Styling & UI:** Material-UI, Chart.js (for analytics)
+### **Frontend**
 
----
+- React.js (bootstrapped with Create React App)
+- Material-UI for styling and component design
+- Chart.js for dynamic data visualization
 
-## Project Structure
+### **Backend**
 
-- **/client:** Contains the React frontend, components, and styling.
-- **/server:** Contains the Express backend, API endpoints, and database configuration.
-- **/config, /models, /middleware:** Backend-specific directories for configuration, data models, and middleware.
+- Express.js for server-side logic
+- Mongoose for MongoDB database interactions
+- JWT authentication for secure access
+
+### **Database**
+
+- MongoDB with schema validation for structured emissions data storage
+
+### **API & Data Integration**
+
+- Third-party emissions factor databases for accurate calculations
+- IoT sensor compatibility for real-time emissions tracking
 
 ---
 
 ## Getting Started
 
-### Prerequisites
+### **Prerequisites**
 
 - Node.js (v14+)
-- npm
+- npm or yarn
+- MongoDB instance (local or cloud-based)
 
-### Installation
+### **Installation**
 
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/yourusername/carbon-emissions-tracker.git
    ```
-2. **Install root dependencies:**
+2. **Install dependencies:**
    ```bash
    npm install
    ```
@@ -141,11 +156,10 @@ For full tables and further details, please refer to the documentation or supple
      MONGODB_URI=your_mongo_connection_string
      JWT_SECRET=your_secret_key
      ```
-   - Optionally configure authentication bypass for development in your client's environment variables.
 
-### Running the Application
+### **Running the Application**
 
-- **Development (concurrently run server and client):**
+- **Development (run server and client concurrently):**
   ```bash
   npm run dev
   ```
@@ -158,30 +172,29 @@ For full tables and further details, please refer to the documentation or supple
   npm run server
   ```
 
-### Building for Production
+### **Building for Production**
 
 - **Build the client:**
   ```bash
   npm run build
   ```
 
-### Testing
+### **Testing**
 
-- Run tests with:
+- Run unit tests with:
   ```bash
   npm test
   ```
 
 ---
 
-## Deployment
+## Future Enhancements
 
-- **Client:**  
-  Follow the [Create React App deployment guide](https://facebook.github.io/create-react-app/docs/deployment) to deploy the frontend.
+- **AI-Powered Emission Reduction Suggestions**
+- **Integration with Carbon Credit Trading Platforms**
+- **Blockchain-based Emission Tracking for Transparency**
+- **Mobile Application Support**
+- **Custom User Notifications & Alerts**
 
-- **Server:**  
-  Ensure proper configuration of environment variables and deploy using your preferred Node.js hosting solution.
+This README provides comprehensive information on the **Carbon Emissions Tracker** application. For any contributions, please refer to the contribution guidelines in `CONTRIBUTIONS.md`. 
 
----
-
----
