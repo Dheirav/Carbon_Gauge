@@ -196,5 +196,4 @@ Different materials influence emissions based on their processing characteristic
 - **Mobile Application Support**
 - **Custom User Notifications & Alerts**
 
-This README provides comprehensive information on the **Carbon Emissions Tracker** application. For any contributions, please refer to the contribution guidelines in `CONTRIBUTIONS.md`. 
 
